@@ -282,6 +282,7 @@ def free_local_disk(local_folder,size,mode):
 
 def list_s3_objects(s3_client,bucket_name, prefix=''):
     objects = []
+    print(f'list_s3_objects from bucket:{bucket_name}')
     paginator = s3_client.get_paginator('list_objects_v2')
     page_iterator = paginator.paginate(Bucket=bucket_name, Prefix=prefix)
     # iterate over pages
@@ -328,6 +329,8 @@ def initial_s3_download(s3_folder, local_folder,cache_dir,mode):
     for obj in s3_objects:
         etag = obj['ETag'].strip('"').strip("'")   
         size = obj['Size']/(1024**3)
+        if size == 0:
+            continue
         filename = obj['Key'].replace(s3_folder, '').lstrip('/')
         tmp_s3_files[filename] = [etag,size]
     
@@ -380,6 +383,8 @@ def sync_s3_folder(local_folder,cache_dir,mode):
         for obj in s3_objects:
             etag = obj['ETag'].strip('"').strip("'")   
             size = obj['Size']/(1024**3)
+            if size == 0:
+                continue
             key = obj['Key'].replace(s3_folder, '').lstrip('/')
             s3_files[key] = [etag,size]
 
